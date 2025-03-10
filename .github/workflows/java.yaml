@@ -3,7 +3,8 @@ run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on:
   push:
     branches:
-      - '^feature/[a-zA-Z]{2,10}-[0-9]{1,6}*'
+      - 'feature/MT-001'
+      - 'feature/[a-zA-Z]{2,10}-[0-9]{1,6}*'
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
