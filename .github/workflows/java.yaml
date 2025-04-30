@@ -7,10 +7,54 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  validate-branch:
+    name: Validate Branch Name
     runs-on: ubuntu-latest
+    steps:
+      - name: Determine branch name
+        id: get_ref
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
 
+      - name: Validate branch or tag name
+        run: |
+          ci_ref_name="${{ steps.get_ref.outputs.branch_name }}"
+          echo "Checking ref: $ci_ref_name"
+          
+          tag_pattern="^v[0-9]{1,2}\.[0-9]{1,3}\.[0-9]{1,3}$"
+          branch_pattern="^(feature|release|hotfix)/[a-zA-Z]{2,10}-[0-9]{1,5}"
+          sit_pattern="^sit/sit-"
+          release_pattern="^release/[Rr]elease_[0-9]{4}\.[0-9]{2}\.[0-9]{2}"
+          release_tag_pattern="^release/v[0-9]{1,2}\.[0-9]{1,3}\.[0-9]{1,3}"
+          
+          if [[ "$ci_ref_name" =~ $tag_pattern || "$ci_ref_name" =~ $branch_pattern || "$ci_ref_name" =~ $release_pattern || "$ci_ref_name" =~ $release_tag_pattern || "$ci_ref_name" == "main" || "$ci_ref_name" == "develop" || "$ci_ref_name" =~ $sit_pattern ]]; then
+            echo "✅ Branch name or tag is valid"
+          else
+            echo "❌ Branch name or tag is invalid"
+            echo "Refer to this document: https://m2-com.atlassian.net/wiki/spaces/tech/pages/347668627/Git+branch+CICD"
+            echo "Branch/tag must match one of the following patterns:"
+            echo " - feature/<JIRA-ID>-comment"
+            echo " - hotfix/<JIRA-ID>-comment"
+            echo " - sit/sit-comment"
+            echo " - release/Release_YYYY.MM.DD"
+            echo " - release/vX.Y.Z"
+            echo " - tag: vX.Y.Z"
+            echo ""
+            echo "Examples:"
+            echo " - v1.2.01"
+            echo " - feature/FUT-007"
+            echo " - sit/sit-xyz"
+            echo " - hotfix/GROW-33"
+            echo " - release/Release_2024.06.28"
+            echo " - release/v1.2.01"
+            exit 1
+          fi
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
