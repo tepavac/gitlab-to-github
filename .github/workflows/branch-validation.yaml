@@ -2,6 +2,8 @@ name: CI branch naming validation
 
 on:
   push:
+    tags:
+      - 'v*.*.*'
     branches: [ main ]
   pull_request:
     branches: [ main ]
