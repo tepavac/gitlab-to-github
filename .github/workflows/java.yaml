@@ -57,7 +57,7 @@ jobs:
     name: Run Maven Tests
     runs-on: ubuntu-latest
     container:
-      image: ${{ secrets.MAVEN_IMAGE }}  # Store MAVEN_IMAGE as a GitHub secrett
+      image: ${{ secrets.MAVEN_IMAGE }}  # Store MAVEN_IMAGE as a GitHub secrettt
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
